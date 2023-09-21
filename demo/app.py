@@ -15,8 +15,8 @@ while True:
         if response.status == 200:
             data = response.read()
             print('Dequeued message:', data.decode('utf-8'))
-        else:
-            print('Failed to dequeue message')
+        # else:
+        #     print('Failed to dequeue message')
     except Exception as e:
         print(f'Error: {str(e)}')
 
