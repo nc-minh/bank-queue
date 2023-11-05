@@ -4,5 +4,11 @@ order-service::
 payment-service::
 	python3 payment-service/app.py  
 
+restaurant-service::
+	python3 restaurant-service/app.py  
 
-.PHONY: order-service payment-service
+delivery-service::
+	python3 delivery-service/app.py  
+
+
+.PHONY: order-service payment-service restaurant-service delivery-service

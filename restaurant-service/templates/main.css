@@ -1,0 +1,82 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Courier New', Courier, monospace !important;
+}
+
+p {
+  margin: 0;
+}
+
+.main {
+  max-width: 1200px;
+  margin: auto;
+  padding-bottom: 100px;
+}
+
+.bg-wapper {
+  width: 100%;
+  height: 200px;
+  background-image: url('http://localhost:5002/static/images/vjp-cover.jpg');
+}
+
+.title {
+  padding: 16px 0;
+  font-size: 34px;
+}
+
+/* start order list */
+/* end order list */
+
+.view-order-btn {
+  margin-bottom: 20px;
+}
+
+/* start order item */
+.order-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 12px;
+}
+
+.order-item-wapper {
+  width: 64px;
+  height: 64px;
+  margin-right: 12px;
+}
+
+.order-item-info-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-item-info {
+  display: flex;
+}
+
+.order-item-image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.order-item-quantity {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-item-quantity p {
+  margin: 0;
+}
+
+.order-total-wrapper {
+  display: flex;
+  margin-top: 12px;
+}
+/* end order item */
