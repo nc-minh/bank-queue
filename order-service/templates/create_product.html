@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo sản phẩm mới</title>
+</head>
+
+<body>
+    <h1>{% block title %} Tạo sản phẩm mới {% endblock %}</h1>
+    <form method="post" enctype="multipart/form-data">
+        <label for="title">Tên sản phẩm</label>
+        <br>
+        <input type="text" name="name" placeholder="Tên sản phẩm" value="{{ request.form['name'] }}"></input>
+        <br>
+
+        <label for="content">Giá</label>
+        <br>
+        <input name="price" placeholder="Giá bán" rows="15" cols="60">{{ request.form['price'] }}</input>
+        <br>
+
+        <label for="content">Ảnh</label>
+        <br>
+        <input name="image" type="file" accept="image/*" alt="Image" />
+        <br>
+
+        <label for="content">Mô tả sản phẩm</label>
+        <br>
+        <textarea name="description" placeholder="Mô tả" rows="15"
+            cols="60">{{ request.form['description'] }}</textarea>
+        <br>
+        <button type="submit">Tạo sản phẩm</button>
+    </form>
+</body>
+
+</html>

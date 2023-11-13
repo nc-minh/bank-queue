@@ -34,75 +34,27 @@
 
         <!-- start product list -->
         <div class="product-list">
+          {% for p in products %}
           <div class="product-item">
             <div class="product-image-wrapper">
               <img
-                src="https://t3.ftcdn.net/jpg/06/12/42/50/360_F_612425086_mWF5KWczGPYNKk9RDWDumUVyO4B3nDHa.jpg"
+                src="{{ p['image_path'] }}"
                 alt=""
                 class="product-image-item"
               />
             </div>
-            <strong class="product-name">Burger Đặc Biệt</strong>
-            <p>Kem sot ca chua sieu ngon!</p>
-            <p class="product-price">39.000d</p>
-            <button class="btn product-btn btn-primary">Thêm</button>
+            <strong class="product-name">{{ p['name'] }}</strong>
+            <p>{{ p['description'] }}</p>
+            <p class="product-price">{{ p['price'] }}d</p>
+            <button
+              data-id="{{ p }}"
+              class="btn product-btn btn-primary"
+              onclick="addToCart(this)"
+            >
+              Thêm
+            </button>
           </div>
-
-          <div class="product-item">
-            <div class="product-image-wrapper">
-              <img
-                src="https://ruavangfood.com/storage/uploads/2021/11/13/618f10ef211a8.png"
-                alt=""
-                class="product-image-item"
-              />
-            </div>
-            <strong class="product-name">Đùi gà Đặc Biệt</strong>
-            <p>Kem sot ca chua sieu ngon!</p>
-            <p class="product-price">49.000d</p>
-            <button class="btn product-btn btn-primary">Thêm</button>
-          </div>
-
-          <div class="product-item">
-            <div class="product-image-wrapper">
-              <img
-                src="https://anhdepfree.com/wp-content/uploads/2023/09/xuc-xich-dep_12513379320.jpg"
-                alt=""
-                class="product-image-item"
-              />
-            </div>
-            <strong class="product-name">Xúc Xích Đặc Biệt</strong>
-            <p>Kem sot ca chua sieu ngon!</p>
-            <p class="product-price">33.000d</p>
-            <button class="btn product-btn btn-primary">Thêm</button>
-          </div>
-
-          <div class="product-item">
-            <div class="product-image-wrapper">
-              <img
-                src="https://i1-ngoisao.vnecdn.net/2016/07/26/4-4624-1469526086.jpg?w=460&h=0&q=100&dpr=2&fit=crop&s=71h-wAaYUYcbXAEhL2DciQ"
-                alt=""
-                class="product-image-item"
-              />
-            </div>
-            <strong class="product-name">Bò Kho Đặc Biệt</strong>
-            <p>Kem sot ca chua sieu ngon!</p>
-            <p class="product-price">99.000d</p>
-            <button class="btn product-btn btn-primary">Thêm</button>
-          </div>
-
-          <div class="product-item">
-            <div class="product-image-wrapper">
-              <img
-                src="https://29foods.com/media/news/419_ga_quay.jpg"
-                alt=""
-                class="product-image-item"
-              />
-            </div>
-            <strong class="product-name">Gà Luộc Đặc Biệt</strong>
-            <p>Kem sot ca chua sieu ngon!</p>
-            <p class="product-price">66.000d</p>
-            <button class="btn product-btn btn-primary">Thêm</button>
-          </div>
+          {% endfor %}
         </div>
         <!-- end product list -->
 
@@ -119,7 +71,7 @@
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <h5 class="modal-title" id="exampleModalLabel">BILL</h5>
                 <button
                   type="button"
                   class="btn-close"
@@ -199,4 +151,13 @@
       </main>
     </div>
   </body>
+
+  <script>
+    function addToCart(_this) {
+      console.log('add to cart', _this);
+      // get id from productId
+      productId = _this.getAttribute('data-id');
+      console.log('productId', productId);
+    }
+  </script>
 </html>
