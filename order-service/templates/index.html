@@ -153,11 +153,11 @@
   </body>
 
   <script>
+    const CART = [];
     function addToCart(_this) {
-      console.log('add to cart', _this);
-      // get id from productId
-      productId = _this.getAttribute('data-id');
-      console.log('productId', productId);
+      const product = _this.getAttribute('data-id');
+      const jsonProduct = product.replace(/'/g, '"');
+      CART.push(JSON.parse(jsonProduct));
     }
   </script>
 </html>
