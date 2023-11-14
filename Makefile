@@ -10,5 +10,12 @@ restaurant-service::
 delivery-service::
 	python3 delivery-service/app.py  
 
+queue::
+	python3 queue/app.py  
 
-.PHONY: order-service payment-service restaurant-service delivery-service
+init_db::
+	python3 db/init_db.py
+
+
+
+.PHONY: order-service payment-service restaurant-service delivery-service queue init_db

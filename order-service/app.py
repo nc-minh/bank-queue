@@ -2,13 +2,23 @@ import os
 from flask import jsonify, render_template, Flask, request, flash, redirect, url_for
 from flask_restful import Resource, Api
 import sqlite3
+import os
+import http.client
+import json
+
+mq_server_host = 'localhost'
+mq_server_port = 5555
 
 app = Flask(__name__, static_folder='static')
-api = Api(app)
 
 def get_db_connection():
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
+    conn = None
+    try:
+        db_path = os.path.abspath(os.getcwd() + "/db/database.db")
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+    except sqlite3.Error as e:
+        print(f"Error connecting to database: {e}")
     return conn
 
 @app.route('/')
@@ -32,7 +42,7 @@ def create_product():
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
-        file.save(os.path.join("static/images", file.filename))
+        file.save(os.path.join("order-service/static/images", file.filename))
 
         # get image path
         image_path = os.path.join("static/images", file.filename)
@@ -77,6 +87,31 @@ def create_product_api():
     conn.close()
 
     return jsonify(product)
+
+# create a orders
+@app.route('/orders', methods=['POST'])
+def create_order_api():
+    order = request.get_json()
+
+    print('order', order)
+
+    connection = http.client.HTTPConnection(
+        mq_server_host, mq_server_port)
+
+    headers = {'Content-type': 'application/json'}
+    payload = json.dumps({'message': order})
+
+    connection.request('POST', '/enqueue',
+                        body=payload, headers=headers)
+
+    response = connection.getresponse()
+
+    if response.status == 200:
+        print('Message sent to queue')
+    else:
+        print('Failed to send message to queue')
+
+    return jsonify(order)
 
 
 

@@ -28,6 +28,7 @@
           class="btn btn-primary view-order-btn"
           data-bs-toggle="modal"
           data-bs-target="#exampleModal"
+          onclick="renderOrderItem()"
         >
           Xem Đơn Đặt Hàng
         </button>
@@ -80,6 +81,7 @@
                 ></button>
               </div>
               <div class="modal-body">
+                <p id="error-text" style="color: red"></p>
                 <div class="input-group mb-3">
                   <span class="input-group-text" id="basic-addon1">@</span>
                   <input
@@ -88,6 +90,7 @@
                     placeholder="Tên"
                     aria-label="Tên"
                     aria-describedby="basic-addon1"
+                    id="name"
                   />
                 </div>
 
@@ -99,6 +102,7 @@
                     placeholder="Số điện thoại"
                     aria-label="Số điện thoại"
                     aria-describedby="basic-addon1"
+                    id="phone"
                   />
                 </div>
 
@@ -110,29 +114,15 @@
                     placeholder="Địa chỉ"
                     aria-label="Địa chỉ"
                     aria-describedby="basic-addon1"
+                    id="address"
                   />
                 </div>
 
-                <div>
-                  <div class="order-item">
-                    <div class="order-item-wapper">
-                      <img
-                        class="order-item-image"
-                        src="https://29foods.com/media/news/419_ga_quay.jpg"
-                        alt=""
-                      />
-                    </div>
-                    <strong class="order-item-name">Gà Luộc Đặc Biệt</strong>
-                    <div class="order-item-quantity">
-                      <p>5</p>
-                      <p>66.000d</p>
-                    </div>
-                  </div>
-                </div>
+                <div id="render-order-item"></div>
 
                 <div class="order-total-wrapper">
                   <p>Tổng:</p>
-                  <p>330.000đ</p>
+                  <p id="total"></p>
                 </div>
               </div>
               <div class="modal-footer">
@@ -143,7 +133,13 @@
                 >
                   Đóng
                 </button>
-                <button type="button" class="btn btn-primary">Đặt hàng</button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  onclick="validateForm()"
+                >
+                  Đặt hàng
+                </button>
               </div>
             </div>
           </div>
@@ -153,11 +149,102 @@
   </body>
 
   <script>
-    const CART = [];
+    var CART = [];
+
+    const myModal = new bootstrap.Modal(
+      document.getElementById('exampleModal'),
+      {
+        keyboard: false,
+      }
+    );
+
     function addToCart(_this) {
       const product = _this.getAttribute('data-id');
       const jsonProduct = product.replace(/'/g, '"');
       CART.push(JSON.parse(jsonProduct));
+    }
+
+    function renderOrderItem() {
+      const orderItemParent = document.querySelector('#render-order-item');
+
+      orderItemParent.innerHTML = '';
+
+      let total = 0;
+
+      CART.forEach((element) => {
+        total += element.price;
+        const newDiv = document.createElement('div');
+        newDiv.innerHTML += `
+        <div class="order-item">
+          <div class="order-item-wapper">
+            <img
+              class="order-item-image"
+              src="${element.image_path}"
+              alt=""
+            />
+          </div>
+          <strong class="order-item-name">${element.name}</strong>
+          <div class="order-item-quantity">
+            <p>${element.price}d</p>
+          </div>
+        </div>
+        `;
+        orderItemParent.appendChild(newDiv);
+      });
+
+      document.querySelector('#total').innerHTML = `${total}đ`;
+    }
+
+    function createOrder() {
+      const name = document.querySelector('#name').value;
+      const phone = document.querySelector('#phone').value;
+      const address = document.querySelector('#address').value;
+      const total = document.querySelector('#total').innerHTML;
+
+      const order = {
+        name,
+        phone,
+        address,
+        total,
+        products: CART,
+      };
+
+      const myHeaders = new Headers();
+      myHeaders.append('Content-Type', 'application/json');
+
+      const raw = JSON.stringify(order);
+
+      const requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow',
+      };
+
+      fetch('http://localhost:5000/orders', requestOptions)
+        .then((response) => response.text())
+        .then((result) => console.log(result))
+        .catch((error) => console.log('error', error));
+    }
+
+    function validateForm() {
+      const errorText = document.querySelector('#error-text');
+      const name = document.querySelector('#name').value;
+      const phone = document.querySelector('#phone').value;
+      const address = document.querySelector('#address').value;
+
+      if (!name || !phone || !address) {
+        errorText.innerHTML = 'Vui lòng nhập đầy đủ thông tin';
+        return false;
+      }
+
+      errorText.innerHTML = '';
+      myModal.hide();
+
+      createOrder();
+
+      CART = [];
+      return true;
     }
   </script>
 </html>
