@@ -92,14 +92,11 @@ def create_product_api():
 @app.route('/orders', methods=['POST'])
 def create_order_api():
     order = request.get_json()
-
-    print('order', order)
-
     connection = http.client.HTTPConnection(
         mq_server_host, mq_server_port)
 
     headers = {'Content-type': 'application/json'}
-    payload = json.dumps({'message': order})
+    payload = json.dumps({'message': order, 'key': "order-service"})
 
     connection.request('POST', '/enqueue',
                         body=payload, headers=headers)

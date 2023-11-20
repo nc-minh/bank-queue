@@ -1,17 +1,13 @@
+
 import json
 import os
-import signal
 import sqlite3
-import sys
-from colorama import Fore
 from flask import Flask, render_template
 import threading
 import requests
 import time
 
 app = Flask(__name__, static_folder='static')
-
-exit_event = threading.Event()
 
 queue_server_url = 'http://localhost:5555'
 
@@ -26,30 +22,23 @@ def get_db_connection():
     return conn
 
 def dequeue_message():
-    max_retries = 100
     retries = 0
 
-    while retries < max_retries:
+    while True:
         try:
             response = requests.get(f'{queue_server_url}/dequeue?key=order-service', timeout=1200000)
             response.raise_for_status()  # Raise an HTTPError for bad responses (4xx and 5xx)
             return response.json()
         except requests.exceptions.Timeout:
-            print(f"Timeout error. Retry {retries + 1}/{max_retries}")
-        except requests.exceptions.HTTPError:
-            print(f"HTTPError. Retry {retries + 1}/{max_retries}")
+            print("Timeout error. Retrying..." + str(retries))
         except requests.exceptions.RequestException:
-            print(f"RequestException. Retry {retries + 1}/{max_retries}")
+            print("Error RequestException. Retrying..." + str(retries))
         except Exception:
-            print(f"Exception. Retry {retries + 1}/{max_retries}")
+            print("Error Exception. Retrying..." + str(retries))
 
         retries += 1
         # Use exponential backoff with a maximum delay of 32 seconds
-        delay = min(2 ** retries, 32)
-        time.sleep(delay)
-
-    print(Fore.RED + "Max retries reached. Unable to dequeue message.")
-    return None  # Return None to indicate that no message was retrieved
+        time.sleep(2)  # Add a delay before retrying
 
 def consumer():
     while True:
@@ -85,14 +74,10 @@ def index():
 
     return render_template('index.html', orders=orders)
 
-
-
-
-thread_return = {'seconds': 0}
-
-consumer_thread = threading.Thread(target=consumer, args=(thread_return,), daemon=True)
-consumer_thread.start()
-
 if __name__ == '__main__':
+    # Create a background thread for the consumer
+    consumer_thread = threading.Thread(target=consumer, daemon=True)
+    consumer_thread.start()
+
     # Run the Flask app
-    app.run(host='localhost', port=5001, debug=True)
+    app.run(host='localhost', port=5001, debug=True, threaded=True)

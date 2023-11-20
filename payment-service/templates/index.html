@@ -25,35 +25,38 @@
 
         <!-- start order list -->
         <div class="order-list">
+          {% for order in orders %}
           <div class="order-item">
             <div class="order-item-info-wrapper">
+              {% for p in order['order_info']['products'] %}
               <div class="order-item-info">
                 <div class="order-item-wapper">
                   <img
                     class="order-item-image"
-                    src="https://29foods.com/media/news/419_ga_quay.jpg"
+                    src="http://localhost:5000/{{p['image_path']}}"
                     alt=""
                   />
                 </div>
                 <div>
-                  <strong>Gà Luộc Đặc Biệt</strong>
+                  <strong>{{p['name']}}</strong>
                   <div class="order-item-quantity">
-                    <p>5</p>
-                    <p>66.000d</p>
+                    <p>{{p['price']}} đ</p>
                   </div>
                 </div>
               </div>
+              {% endfor %}
 
               <div>
-                <p>Nguyen Cong Minh</p>
-                <p>033 9900 890</p>
-                <p>29 Lieu Giai, Ngoc Khanh, Ba Dinh, Ha Noi</p>
+                <p>{{order['order_info'].name}}</p>
+                <p>{{order['order_info'].phone}}</p>
+                <p>{{order['order_info'].address}}</p>
               </div>
             </div>
 
             <span>Đã thanh toán</span>
             <button class="btn btn-success">Chuẩn bị</button>
           </div>
+          {% endfor %}
         </div>
         <!-- end order list -->
       </main>

@@ -14,8 +14,6 @@ class CustomQueue:
     def dequeue(self):
         if not self.is_empty():
             return self.items.pop(0)
-        else:
-            raise IndexError("Queue is empty")
 
     def size(self):
         return len(self.items)
