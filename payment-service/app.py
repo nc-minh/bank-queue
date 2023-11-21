@@ -1,8 +1,7 @@
+import atexit
 import json
 import os
-import signal
 import sqlite3
-import sys
 from colorama import Fore
 from flask import Flask, render_template
 import threading
@@ -12,6 +11,7 @@ import time
 app = Flask(__name__, static_folder='static')
 
 exit_event = threading.Event()
+is_exiting = False
 
 queue_server_url = 'http://localhost:5555'
 
@@ -31,6 +31,9 @@ def dequeue_message():
 
     while retries < max_retries:
         try:
+            if is_exiting:
+                print("Exiting from dequeue_message")
+                break
             response = requests.get(f'{queue_server_url}/dequeue?key=order-service', timeout=1200000)
             response.raise_for_status()  # Raise an HTTPError for bad responses (4xx and 5xx)
             return response.json()
@@ -43,6 +46,10 @@ def dequeue_message():
         except Exception:
             print(f"Exception. Retry {retries + 1}/{max_retries}")
 
+        if exit_event.is_set():
+            print("Exit event set. Exiting...")
+            break
+
         retries += 1
         # Use exponential backoff with a maximum delay of 32 seconds
         delay = min(2 ** retries, 32)
@@ -54,6 +61,10 @@ def dequeue_message():
 def consumer():
     while True:
         try:
+            if is_exiting:
+                print("Exiting from consumer")
+                break
+            
             message = dequeue_message()
             if message:
                 print(f'Received message: {message}')
@@ -72,6 +83,11 @@ def consumer():
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}. Retrying...")
 
+        
+        if exit_event.is_set():
+            print("Exit event set. Exiting...")
+            break
+
 @app.route('/')
 def index():
     conn = get_db_connection()
@@ -88,9 +104,16 @@ def index():
 
 
 
-thread_return = {'seconds': 0}
+def cleanup():
+    exit_event.set()
+    is_exiting = True
+    print('Exiting...')
 
-consumer_thread = threading.Thread(target=consumer, args=(thread_return,), daemon=True)
+atexit.register(cleanup)
+
+
+
+consumer_thread = threading.Thread(target=consumer, daemon=True)
 consumer_thread.start()
 
 if __name__ == '__main__':
