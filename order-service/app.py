@@ -1,6 +1,5 @@
 import os
 from flask import jsonify, render_template, Flask, request, flash, redirect, url_for
-from flask_restful import Resource, Api
 import sqlite3
 import os
 import http.client
