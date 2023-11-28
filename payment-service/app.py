@@ -1,9 +1,10 @@
 import atexit
+import http
 import json
 import os
 import sqlite3
 from colorama import Fore
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import threading
 import requests
 import time
@@ -14,6 +15,8 @@ exit_event = threading.Event()
 is_exiting = False
 
 queue_server_url = 'http://localhost:5555'
+mq_server_host = 'localhost'
+mq_server_port = 5555
 
 def get_db_connection():
     conn = None
@@ -97,11 +100,34 @@ def index():
     orders = [dict(row) for row in rows]
 
     for order in orders:
+        print(order["order_id"])
         order['order_info'] = json.loads(order['order_info'])
 
     return render_template('index.html', orders=orders)
 
+@app.route('/prepare', methods=['POST'])
+def prepare():
 
+    order = request.get_json()
+    connection = http.client.HTTPConnection(
+        mq_server_host, mq_server_port)
+
+    headers = {'Content-type': 'application/json'}
+    payload = json.dumps({'message': {
+        'order_id': order['order_id'],
+    }, 'key': "payment-service"})
+
+    connection.request('POST', '/enqueue',
+                        body=payload, headers=headers)
+
+    response = connection.getresponse()
+
+    if response.status == 200:
+        print('Message sent to queue')
+    else:
+        print('Failed to send message to queue')
+
+    return '', 204
 
 
 def cleanup():
@@ -118,4 +144,4 @@ consumer_thread.start()
 
 if __name__ == '__main__':
     # Run the Flask app
-    app.run(host='localhost', port=5001, debug=True)
+    app.run(host='localhost', port=5001)

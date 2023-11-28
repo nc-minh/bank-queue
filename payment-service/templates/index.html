@@ -54,7 +54,13 @@
             </div>
 
             <span>Đã thanh toán</span>
-            <button class="btn btn-success">Chuẩn bị</button>
+            <button
+              onclick="prepare(this)"
+              data-id="{{ order.order_id }}"
+              class="btn btn-success"
+            >
+              Chuẩn bị
+            </button>
           </div>
           {% endfor %}
         </div>
@@ -62,4 +68,34 @@
       </main>
     </div>
   </body>
+
+  <script>
+    function prepare(_this) {
+      const orderId = _this.getAttribute('data-id');
+
+      const order = {
+        order_id: orderId,
+      };
+
+      const myHeaders = new Headers();
+      myHeaders.append('Content-Type', 'application/json');
+
+      const raw = JSON.stringify(order);
+
+      const requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow',
+      };
+
+      fetch('http://localhost:5001/prepare', requestOptions)
+        .then((response) => response.text())
+        .then((result) => {
+          console.log(result);
+          window.location.reload();
+        })
+        .catch((error) => console.log('error', error));
+    }
+  </script>
 </html>
